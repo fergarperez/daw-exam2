@@ -6,7 +6,7 @@
 ###############################################################################
 
 AWS_VPC_CIDR_BLOCK=192.168.0.0/16
-AWS_Proyecto=DAW
+AWS_Proyecto=DAW-Exam
 
 echo "######################################################################"
 echo "Creación de una VPC y varias instancias EC2 Ubuntu Server 22.04 "
