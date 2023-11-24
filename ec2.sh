@@ -109,15 +109,35 @@ declare -a AWS_ID_Instancias
 
 # Crear instancias y almacenar sus IDs en el array AWS_ID_Instancias
 for ((i=0; i<${#AWS_ID_Subredes[@]}; i++)); do
+  Departamento=""
+  case $i in
+    0)
+      Departamento="Desarrollo"
+      ;;
+    1)
+      Departamento="Soporte"
+      ;;
+    2)
+      Departamento="Ingeniería"
+      ;;
+    3)
+      Departamento="Mantenimiento"
+      ;;
+    *)
+      Departamento="Desconocido"
+      ;;
+  esac
+
   AWS_EC2_INSTANCE_ID=$(aws ec2 run-instances \
     --image-id $AWS_AMI_Ubuntu_ID \
     --instance-type t2.micro \
     --key-name vockey \
     --monitoring "Enabled=false" \
-    --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=EC2FERNANDO_'$i'}]' \
+    --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value='$Departamento'-EC2}]' \
     --security-group-ids ${AWS_ID_GruposSeguridad[$i]} \
     --subnet-id ${AWS_ID_Subredes[$i]} \
     --query 'Instances[0].InstanceId' \
     --output text)
   AWS_ID_Instancias+=($AWS_EC2_INSTANCE_ID)
 done
+
