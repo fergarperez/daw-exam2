@@ -63,11 +63,16 @@ echo "########################### Ubuntu Server ############################"
 echo "######################################################################"
 declare -a AWS_ID_GruposSeguridad
 
-# Crear grupos de seguridad y almacenar sus IDs en el array AWS_ID_GruposSeguridad
-for SubredId in "${AWS_ID_Subredes[@]}"; do
+length=${#AWS_ID_Subredes[@]}
+
+# Iterar sobre los índices del array AWS_ID_Subredes
+for ((i = 0; i < length; i++)); do
+  SubredId="${AWS_ID_Subredes[$i]}"
+  
+  # Crear el grupo de seguridad y almacenar su ID
   GrupoSeguridadId=$(aws ec2 create-security-group \
-    --vpc-id $AWS_ID_VPC \
-    --group-name $AWS_Proyecto-us-sg \
+    --vpc-id "$AWS_ID_VPC" \
+    --group-name "$AWS_Proyecto-us-sg" \
     --description "$AWS_Proyecto-us-sg" \
     --output text)
 
@@ -90,10 +95,30 @@ for SubredId in "${AWS_ID_Subredes[@]}"; do
     --group-id $GrupoSeguridadId \
     --ip-permissions '[{"IpProtocol": "UDP", "FromPort": 53, "ToPort": 53, "IpRanges": [{"CidrIp": "0.0.0.0/0", "Description": "Allow DNS(UDP)"}]}]'
 
-  ## Añadir etiqueta al grupo de seguridad
+  
+  # Agregar etiqueta de departamento al grupo de seguridad
+  case $i in
+    0)
+      Departamento="Desarrollo"
+      ;;
+    1)
+      Departamento="Soporte"
+      ;;
+    2)
+      Departamento="Ingeniería"
+      ;;
+    3)
+      Departamento="Mantenimiento"
+      ;;
+    *)
+      Departamento="Desconocido"
+      ;;
+  esac
+  
+  # Añadir etiqueta al grupo de seguridad
   aws ec2 create-tags \
-    --resources $GrupoSeguridadId \
-    --tags "Key=Name,Value=$AWS_Proyecto-us-sg"
+    --resources "$GrupoSeguridadId" \
+    --tags "Key=Name,Value=$AWS_Proyecto-us-sg-$Departamento"
   
   AWS_ID_GruposSeguridad+=($GrupoSeguridadId)
 done
